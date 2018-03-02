@@ -1,7 +1,7 @@
 #$language = "Python"
 #$interface = "1.0"
 """
-SecureCRT script to establish an SSH connection with a local SSH proxy listening on a random port.
+SecureCRT script to establish an SSH connection, with a local SSH proxy listening on a random port.
 """
 import socket
 
@@ -41,12 +41,16 @@ def main():
         # "/I {}".format(ssh_key_file),  # use SSH private key file for authentication
         # "/L {}".format(ssh_user),  # SSH username
         # "/PASSWORD {}".format(ssh_pw),  # SSH password
-        # "/ACCEPTHOSTKEYS",  # auto-accept remote SSH host key
+        "/ACCEPTHOSTKEYS",  # auto-accept remote SSH host key
         # "/FORWARDX11PACKETS",  # enable X11 forawrding
     ]
     cmd = " ".join(cmdline_opts + [hostname])
-    crt.Dialog.MessageBox("\n".join(cmdline_opts))
-    crt.Session.Connect(cmd)
+    # crt.Dialog.MessageBox("\n".join(cmdline_opts))
+    crt.Session.ConnectInTab(cmd)
+
+    # save local proxy port in tab caption (seems like the best/only place to save per-session info)
+    tab = crt.GetActiveTab()
+    tab.Caption = "{} {}".format(hostname, l_lport)  # e.g. "myserver.example.com 53879"
 
 
 main()
