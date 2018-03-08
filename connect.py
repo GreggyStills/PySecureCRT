@@ -23,7 +23,6 @@ except (AssertionError, ImportError):
 def run_shell(cmd):
     """Run a shell command, and return the output."""
     try:
-        os.chdir(this_dir)
         cmd_list = shlex.split(cmd)
         output = subprocess.check_output(cmd_list, stderr=subprocess.STDOUT)
         return output
@@ -33,7 +32,11 @@ def run_shell(cmd):
 
 
 def main():
+    cwd = os.getcwd()
+    os.chdir(this_dir)
     l_lport = run_shell("python find_localport.py")
+    os.chdir(cwd)
+
     crt.Screen.Synchronous = True
     hostname = crt.Dialog.Prompt("Enter Hostname:")
     # ssh_user = crt.Dialog.Prompt("Enter User:")
@@ -53,10 +56,9 @@ def main():
     ]
     cmd = " ".join(cmdline_opts + [hostname])
     # crt.Dialog.MessageBox("\n".join(cmdline_opts))
-    crt.Session.ConnectInTab(cmd)
+    tab = crt.Session.ConnectInTab(cmd)
 
     # save local proxy port in tab caption (seems like the best/only place to save per-session info)
-    tab = crt.GetActiveTab()
     tab.Caption = "{} {}".format(hostname, l_lport)  # e.g. "myserver.example.com 53879"
 
 
