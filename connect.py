@@ -7,6 +7,8 @@ import os
 import shlex
 import subprocess
 
+this_dir = os.path.dirname(os.path.abspath(__file__))
+
 # Detect if this script is being run by SecureCRT Python.  If not, then try to load my
 # hacky mock SecureCRT "API", so that my PyCharm/iPython/IDE can help me w/ docstrings
 # and auto-complete (because VanDyke's API doc kinda sucks).
@@ -20,14 +22,19 @@ except (AssertionError, ImportError):
 
 def run_shell(cmd):
     """Run a shell command, and return the output."""
-    output = subprocess.check_output(shlex.split(cmd), stderr=subprocess.STDOUT)
-    return output
+    try:
+        os.chdir(this_dir)
+        cmd_list = shlex.split(cmd)
+        output = subprocess.check_output(cmd_list, stderr=subprocess.STDOUT)
+        return output
+    except Exception as e:
+        crt.Dialog.MessageBox("ERROR: {}\nCommand list: {}".format(e, cmd_list))
+        raise
 
 
 def main():
-    this_dir = os.path.dirname(os.path.abspath(__file__))
-    lport_script = os.path.join(this_dir, "find_localport.py")
-    l_lport = run_shell("python {}".format(lport_script))
+    l_lport = run_shell("python find_localport.py")
+    print(l_lport)
     crt.Screen.Synchronous = True
     hostname = crt.Dialog.Prompt("Enter Hostname:")
     # ssh_user = crt.Dialog.Prompt("Enter User:")
