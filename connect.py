@@ -34,7 +34,6 @@ def run_shell(cmd):
 
 def main():
     l_lport = run_shell("python find_localport.py")
-    print(l_lport)
     crt.Screen.Synchronous = True
     hostname = crt.Dialog.Prompt("Enter Hostname:")
     # ssh_user = crt.Dialog.Prompt("Enter User:")
