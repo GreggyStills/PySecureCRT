@@ -3,8 +3,9 @@
 """
 SecureCRT script to establish an SSH connection, with a local SSH proxy listening on a random port.
 """
-import subprocess
+import os
 import shlex
+import subprocess
 
 # Detect if this script is being run by SecureCRT Python.  If not, then try to load my
 # hacky mock SecureCRT "API", so that my PyCharm/iPython/IDE can help me w/ docstrings
@@ -24,7 +25,9 @@ def run_shell(cmd):
 
 
 def main():
-    l_lport = run_shell("python find_localport.py")
+    this_dir = os.path.dirname(os.path.abspath(__file__))
+    lport_script = os.path.join(this_dir, "find_localport.py")
+    l_lport = run_shell("python {}".format(lport_script))
     crt.Screen.Synchronous = True
     hostname = crt.Dialog.Prompt("Enter Hostname:")
     # ssh_user = crt.Dialog.Prompt("Enter User:")
