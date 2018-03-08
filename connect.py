@@ -3,7 +3,8 @@
 """
 SecureCRT script to establish an SSH connection, with a local SSH proxy listening on a random port.
 """
-import socket
+import subprocess
+import shlex
 
 # Detect if this script is being run by SecureCRT Python.  If not, then try to load my
 # hacky mock SecureCRT "API", so that my PyCharm/iPython/IDE can help me w/ docstrings
@@ -16,22 +17,20 @@ except (AssertionError, ImportError):
     pass
 
 
-def get_random_lport():
-    """Find a random local port on our workstation that is not in use,
-    so we can use it as the listening port# for a local SSH proxy."""
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(('127.0.0.1', 0))
-    addr, localport = sock.getsockname()
-    sock.close()
-    return localport
+def run_shell(cmd):
+    """Run a shell command, and return the output."""
+    output = subprocess.check_output(shlex.split(cmd), stderr=subprocess.STDOUT)
+    return output
 
 
 def main():
+    l_lport = run_shell("python find_localport.py")
+    crt.Dialog.MessageBox(str(l_lport))
     crt.Screen.Synchronous = True
     hostname = crt.Dialog.Prompt("Enter Hostname:")
     # ssh_user = crt.Dialog.Prompt("Enter User:")
     # ssh_pw = crt.Dialog.Prompt("Enter Password:", isPassword=True)
-    l_lport = get_random_lport()
+    # l_lport = get_random_lport()
     cmdline_opts = [
         # "/S {}".format(session_name)  # name of SecureCRT session to use
         # "/T"  # open specified session (/S) in a separate tab
